@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LHU Countdown - Đếm ngược thời gian thi</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Form cấu hình ban đầu -->
+    <div id="configForm" class="config-form">
+        <div class="form-container">
+            <h2><i class="fas fa-cog"></i> Cấu hình thời gian thi</h2>
+            <form id="examForm">
+                <div class="form-group">
+                    <label for="subjectName">Tên môn thi:</label>
+                    <input type="text" id="subjectName" required placeholder="Ví dụ: Toán học, Vật lý...">
+                </div>
+                <div class="form-group">
+                    <label for="startTime">Thời gian bắt đầu:</label>
+                    <input type="datetime-local" id="startTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="endTime">Thời gian kết thúc:</label>
+                    <input type="datetime-local" id="endTime" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Thời gian tổng:</label>
+                    <div class="duration-display" id="durationText">--</div>
+                </div>
+                
+                <!-- Các giai đoạn -->
+                <div class="stages-section">
+                    <div class="stages-header">
+                        <label>Các giai đoạn:</label>
+                        <button type="button" class="add-stage-btn" onclick="addStage()">
+                            <i class="fas fa-plus"></i> Thêm giai đoạn
+                        </button>
+                        <button type="button" class="set-preexam-btn" onclick="showPreExamTimePicker()" style="margin-left:10px; background:#ff9800; color:white; border:none; border-radius:5px; padding:8px 14px; cursor:pointer; font-size:14px;">
+                            <i class="fas fa-clock"></i> Đặt thời gian phát đề
+                        </button>
+                    </div>
+                    <div class="form-group preexam-time-group" id="preExamTimeGroup" style="display:none; margin:10px 0 0 0;">
+                        <label for="preExamTimeStart">Thời gian phát đề (trước khi thi):</label>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span>Từ</span>
+                            <input type="time" id="preExamTimeStart" style="width:110px;">
+                            <span>đến</span>
+                            <input type="time" id="preExamTimeEnd" style="width:110px;">
+                            <button type="button" onclick="hidePreExamTimePicker()" style="margin-left:8px;">Ẩn</button>
+                        </div>
+                        <div class="duration-display" id="preExamDurationText" style="margin-top:4px;"></div>
+                    </div>
+                    <div class="stages-container" id="stagesContainer">
+                        <!-- Các giai đoạn sẽ được thêm vào đây -->
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="start-btn">
+                        <i class="fas fa-play"></i> Bắt đầu đếm ngược
+                    </button>
+                    <button type="button" class="save-btn" onclick="saveFormData()">
+                        <i class="fas fa-save"></i> Lưu cấu hình
+                    </button>
+                    <button type="button" class="load-btn" onclick="showSavedConfigs()">
+                        <i class="fas fa-folder-open"></i> Tải cấu hình
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal cho saved configurations -->
+    <div id="savedModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-folder"></i> Cấu hình đã lưu</h3>
+                <button class="close-btn" onclick="closeSavedModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="saved-list" id="savedList">
+                <!-- Saved configurations will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Màn hình countdown chính -->
+    <div id="countdownScreen" class="countdown-screen hidden">
+        <!-- Header với logo và tên -->
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo">
+                    <img src="LHU&ASU-ENG1@.png" alt="Logo LHU" style="width: 60px; height: 60px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.2);">
+                </div>
+                <h1 class="title">LHU Countdown</h1>
+            </div>
+        </header>
+
+        <!-- Thông tin ngày tháng -->
+        <div class="date-info">
+            <div class="current-date" id="currentDate"></div>
+        </div>
+
+        <!-- Tên môn thi -->
+        <div class="subject-section">
+            <h2 class="subject-name" id="subjectDisplay"></h2>
+        </div>
+
+        <!-- Thời gian làm bài -->
+        <div class="exam-time-section">
+            <div class="exam-time-info" id="examTimeInfo"></div>
+        </div>
+
+        <!-- Đồng hồ đếm ngược -->
+        <div class="countdown-section">
+            <div class="countdown-container">
+                <div class="countdown-item">
+                    <div class="countdown-number" id="days">00</div>
+                    <div class="countdown-label">Ngày</div>
+                </div>
+                <div class="countdown-separator">:</div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="hours">00</div>
+                    <div class="countdown-label">Giờ</div>
+                </div>
+                <div class="countdown-separator">:</div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="minutes">00</div>
+                    <div class="countdown-label">Phút</div>
+                </div>
+                <div class="countdown-separator">:</div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="seconds">00</div>
+                    <div class="countdown-label">Giây</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thanh progress và giai đoạn -->
+        <div class="progress-section">
+            <div class="stage-info">
+                <div class="stage-name" id="currentStage">Đang chuẩn bị...</div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                    <!-- Đánh dấu các giai đoạn -->
+                    <div class="stage-markers" id="stageMarkers"></div>
+                </div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
+            <!-- Thời gian từng giai đoạn -->
+            <div class="stage-times" id="stageTimes"></div>
+        </div>
+
+        <!-- Nút điều khiển -->
+        <div class="controls">
+            <button id="pauseBtn" class="control-btn">
+                <i class="fas fa-pause"></i> Tạm dừng
+            </button>
+            <button id="resetBtn" class="control-btn">
+                <i class="fas fa-redo"></i> Làm lại
+            </button>
+        </div>
+
+        <!-- Background particles -->
+        <div class="particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

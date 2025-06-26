@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LHU Countdown - Demo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .demo-info {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            max-width: 300px;
+        }
+        .demo-info h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .demo-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .demo-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px 5px 5px 0;
+            font-size: 12px;
+        }
+        .demo-btn:hover {
+            background: #5a6fd8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Demo Info -->
+    <div class="demo-info">
+        <h3>🎯 Demo LHU Countdown</h3>
+        <p><strong>Môn thi:</strong> Toán học</p>
+        <p><strong>Thời gian:</strong> 2 giờ</p>
+        <p><strong>Giai đoạn:</strong> Đọc đề, Làm bài, Kiểm tra, Nộp bài</p>
+        <button class="demo-btn" onclick="startDemo()">🚀 Bắt đầu Demo</button>
+        <button class="demo-btn" onclick="resetDemo()">🔄 Reset</button>
+        <button class="demo-btn" onclick="window.open('index.html', '_blank')">📝 Form Gốc</button>
+    </div>
+
+    <!-- Màn hình countdown chính -->
+    <div id="countdownScreen" class="countdown-screen">
+        <!-- Header với logo và tên -->
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo">
+                    <img src="LHU&ASU-ENG1@.png" alt="Logo LHU" style="width: 60px; height: 60px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.2);">
+                </div>
+                <h1 class="title">LHU Countdown</h1>
+            </div>
+        </header>
+
+        <!-- Thông tin ngày tháng -->
+        <div class="date-info">
+            <div class="current-date" id="currentDate"></div>
+        </div>
+
+        <!-- Tên môn thi -->
+        <div class="subject-section">
+            <h2 class="subject-name" id="subjectDisplay">Toán học</h2>
+        </div>
+
+        <!-- Thời gian làm bài -->
+        <div class="exam-time-section">
+            <div class="exam-time-info" id="examTimeInfo">Thời gian làm bài: 09:00 - 11:00</div>
+        </div>
+
+        <!-- Đồng hồ đếm ngược -->
+        <div class="countdown-section">
+            <div class="countdown-container">
+                <div class="countdown-item">
+                    <div class="countdown-number" id="days">00</div>
+                    <div class="countdown-label">Ngày</div>
+                </div>
+                <div class="countdown-separator">:</div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="hours">02</div>
+                    <div class="countdown-label">Giờ</div>
+                </div>
+                <div class="countdown-separator">:</div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="minutes">00</div>
+                    <div class="countdown-label">Phút</div>
+                </div>
+                <div class="countdown-separator">:</div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="seconds">00</div>
+                    <div class="countdown-label">Giây</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thanh progress và giai đoạn -->
+        <div class="progress-section">
+            <div class="stage-info">
+                <div class="stage-name" id="currentStage">Đọc đề</div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 25%"></div>
+                    <!-- Đánh dấu các giai đoạn -->
+                    <div class="stage-markers" id="stageMarkers">
+                        <div class="stage-marker current" style="left: 0%"></div>
+                        <div class="stage-marker" style="left: 33.33%"></div>
+                        <div class="stage-marker" style="left: 66.66%"></div>
+                        <div class="stage-marker" style="left: 100%"></div>
+                    </div>
+                </div>
+                <div class="progress-text" id="progressText">25%</div>
+            </div>
+            <!-- Thời gian từng giai đoạn -->
+            <div class="stage-times" id="stageTimes">
+                <div class="stage-time-item current">
+                    <div class="stage-time-label">Đọc đề</div>
+                    <div class="stage-time-value">09:00 - 09:30</div>
+                </div>
+                <div class="stage-time-item">
+                    <div class="stage-time-label">Làm bài</div>
+                    <div class="stage-time-value">09:30 - 10:30</div>
+                </div>
+                <div class="stage-time-item">
+                    <div class="stage-time-label">Kiểm tra</div>
+                    <div class="stage-time-value">10:30 - 10:45</div>
+                </div>
+                <div class="stage-time-item">
+                    <div class="stage-time-label">Nộp bài</div>
+                    <div class="stage-time-value">10:45 - 11:00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nút điều khiển -->
+        <div class="controls">
+            <button id="pauseBtn" class="control-btn">
+                <i class="fas fa-pause"></i> Tạm dừng
+            </button>
+            <button id="resetBtn" class="control-btn">
+                <i class="fas fa-redo"></i> Làm lại
+            </button>
+            <button class="control-btn" onclick="toggleFullscreen()">
+                <i class="fas fa-expand"></i> Fullscreen
+            </button>
+        </div>
+
+        <!-- Background particles -->
+        <div class="particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+    </div>
+
+    <script>
+        // Demo data
+        let demoData = {
+            subject: 'Toán học',
+            startTime: new Date(),
+            endTime: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 giờ
+            stages: ['Đọc đề', 'Làm bài', 'Kiểm tra', 'Nộp bài']
+        };
+
+        let countdownInterval;
+        let isPaused = false;
+
+        // Elements
+        const subjectDisplay = document.getElementById('subjectDisplay');
+        const examTimeInfo = document.getElementById('examTimeInfo');
+        const currentDate = document.getElementById('currentDate');
+        const currentStage = document.getElementById('currentStage');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const stageMarkers = document.getElementById('stageMarkers');
+        const stageTimes = document.getElementById('stageTimes');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentDate();
+            setInterval(updateCurrentDate, 1000);
+            
+            // Setup controls
+            pauseBtn.addEventListener('click', togglePause);
+            resetBtn.addEventListener('click', resetDemo);
+            
+            // Start demo
+            startDemo();
+        });
+
+        function formatTimeDisplay(date) {
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+
+        function startDemo() {
+            // Reset demo data
+            demoData.startTime = new Date();
+            demoData.endTime = new Date(Date.now() + 2 * 60 * 60 * 1000);
+            
+            // Update exam time info
+            updateExamTimeInfo();
+            
+            // Create stage markers and times
+            createStageMarkers();
+            createStageTimes();
+            
+            // Start countdown
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            
+            countdownInterval = setInterval(updateCountdown, 1000);
+            updateCountdown();
+        }
+
+        function updateExamTimeInfo() {
+            const startTime = new Date(demoData.startTime);
+            const endTime = new Date(demoData.endTime);
+            
+            const startTimeStr = formatTimeDisplay(startTime);
+            const endTimeStr = formatTimeDisplay(endTime);
+            
+            examTimeInfo.textContent = `Thời gian làm bài: ${startTimeStr} - ${endTimeStr}`;
+        }
+
+        function createStageMarkers() {
+            stageMarkers.innerHTML = '';
+            const stages = demoData.stages;
+            const stageCount = stages.length;
+            
+            for (let i = 0; i < stageCount; i++) {
+                const marker = document.createElement('div');
+                marker.className = 'stage-marker';
+                marker.style.left = `${(i / (stageCount - 1)) * 100}%`;
+                marker.setAttribute('data-stage', i);
+                stageMarkers.appendChild(marker);
+            }
+        }
+
+        function createStageTimes() {
+            stageTimes.innerHTML = '';
+            const stages = demoData.stages;
+            const startTime = new Date(demoData.startTime);
+            const endTime = new Date(demoData.endTime);
+            const totalTime = endTime - startTime;
+            const timePerStage = totalTime / stages.length;
+            
+            stages.forEach((stage, index) => {
+                const stageStartTime = new Date(startTime.getTime() + (index * timePerStage));
+                const stageEndTime = new Date(startTime.getTime() + ((index + 1) * timePerStage));
+                
+                const timeItem = document.createElement('div');
+                timeItem.className = 'stage-time-item';
+                timeItem.setAttribute('data-stage', index);
+                
+                const timeLabel = document.createElement('div');
+                timeLabel.className = 'stage-time-label';
+                timeLabel.textContent = stage;
+                
+                const timeValue = document.createElement('div');
+                timeValue.className = 'stage-time-value';
+                timeValue.textContent = `${formatTimeDisplay(stageStartTime)} - ${formatTimeDisplay(stageEndTime)}`;
+                
+                timeItem.appendChild(timeLabel);
+                timeItem.appendChild(timeValue);
+                stageTimes.appendChild(timeItem);
+            });
+        }
+
+        function updateCountdown() {
+            if (isPaused) return;
+            
+            const now = new Date();
+            const endTime = new Date(demoData.endTime);
+            const startTime = new Date(demoData.startTime);
+            
+            let timeLeft;
+            let isBeforeStart = false;
+            
+            if (now < startTime) {
+                timeLeft = startTime - now;
+                isBeforeStart = true;
+            } else if (now >= endTime) {
+                timeLeft = 0;
+                handleTimeUp();
+                return;
+            } else {
+                timeLeft = endTime - now;
+            }
+            
+            // Calculate time
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            // Update display
+            updateCountdownDisplay(days, hours, minutes, seconds);
+            updateProgressAndStage(now, startTime, endTime, isBeforeStart);
+        }
+
+        function updateCountdownDisplay(days, hours, minutes, seconds) {
+            animateNumberChange(daysEl, days);
+            animateNumberChange(hoursEl, hours);
+            animateNumberChange(minutesEl, minutes);
+            animateNumberChange(secondsEl, seconds);
+        }
+
+        function animateNumberChange(element, newValue) {
+            const currentValue = parseInt(element.textContent);
+            if (currentValue !== newValue) {
+                element.style.animation = 'numberPulse 0.5s ease';
+                element.textContent = String(newValue).padStart(2, '0');
+                
+                setTimeout(() => {
+                    element.style.animation = '';
+                }, 500);
+            }
+        }
+
+        function updateProgressAndStage(now, startTime, endTime, isBeforeStart) {
+            if (isBeforeStart) {
+                currentStage.textContent = 'Chuẩn bị';
+                const totalPrepTime = startTime - new Date(startTime.getTime() - 24 * 60 * 60 * 1000);
+                const prepProgress = Math.max(0, Math.min(100, ((now - totalPrepTime) / (startTime - totalPrepTime)) * 100));
+                updateProgressBar(prepProgress);
+                updateStageMarkers(-1);
+            } else {
+                const totalExamTime = endTime - startTime;
+                const elapsedTime = now - startTime;
+                const progress = Math.min(100, (elapsedTime / totalExamTime) * 100);
+                
+                updateProgressBar(progress);
+                updateCurrentStage(progress);
+                updateStageMarkers(progress);
+            }
+        }
+
+        function updateProgressBar(percentage) {
+            progressFill.style.width = `${percentage}%`;
+            progressText.textContent = `${Math.round(percentage)}%`;
+            
+            if (percentage < 25) {
+                progressFill.style.background = 'linear-gradient(90deg, #4facfe 0%, #00f2fe 100%)';
+            } else if (percentage < 50) {
+                progressFill.style.background = 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)';
+            } else if (percentage < 75) {
+                progressFill.style.background = 'linear-gradient(90deg, #fa709a 0%, #fee140 100%)';
+            } else {
+                progressFill.style.background = 'linear-gradient(90deg, #ff6b6b 0%, #ee5a24 100%)';
+            }
+        }
+
+        function updateCurrentStage(progress) {
+            const stages = demoData.stages;
+            const stageCount = stages.length;
+            const currentStageIndex = Math.floor((progress / 100) * stageCount);
+            
+            if (currentStageIndex < stageCount) {
+                currentStage.textContent = stages[currentStageIndex];
+            } else {
+                currentStage.textContent = stages[stageCount - 1];
+            }
+        }
+
+        function updateStageMarkers(progress) {
+            const markers = document.querySelectorAll('.stage-marker');
+            const timeItems = document.querySelectorAll('.stage-time-item');
+            const stages = demoData.stages;
+            const stageCount = stages.length;
+            
+            if (progress < 0) {
+                markers.forEach(marker => {
+                    marker.classList.remove('completed', 'current');
+                });
+                timeItems.forEach(item => {
+                    item.classList.remove('completed', 'current');
+                });
+                return;
+            }
+            
+            const currentStageIndex = Math.floor((progress / 100) * stageCount);
+            
+            markers.forEach((marker, index) => {
+                marker.classList.remove('completed', 'current');
+                
+                if (index < currentStageIndex) {
+                    marker.classList.add('completed');
+                } else if (index === currentStageIndex) {
+                    marker.classList.add('current');
+                }
+            });
+            
+            timeItems.forEach((item, index) => {
+                item.classList.remove('completed', 'current');
+                
+                if (index < currentStageIndex) {
+                    item.classList.add('completed');
+                } else if (index === currentStageIndex) {
+                    item.classList.add('current');
+                }
+            });
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            
+            if (isPaused) {
+                pauseBtn.innerHTML = '<i class="fas fa-play"></i> Tiếp tục';
+                pauseBtn.style.background = 'rgba(76, 175, 80, 0.3)';
+            } else {
+                pauseBtn.innerHTML = '<i class="fas fa-pause"></i> Tạm dừng';
+                pauseBtn.style.background = 'rgba(255, 255, 255, 0.2)';
+            }
+        }
+
+        function resetDemo() {
+            if (confirm('Bạn có chắc muốn reset demo?')) {
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                }
+                
+                isPaused = false;
+                pauseBtn.innerHTML = '<i class="fas fa-pause"></i> Tạm dừng';
+                pauseBtn.style.background = 'rgba(255, 255, 255, 0.2)';
+                
+                startDemo();
+            }
+        }
+
+        function handleTimeUp() {
+            const countdownContainer = document.querySelector('.countdown-container');
+            countdownContainer.classList.add('countdown-finished');
+            
+            currentStage.textContent = 'HẾT THỜI GIAN!';
+            currentStage.style.color = '#ff6b6b';
+            currentStage.style.animation = 'glow 0.5s ease-in-out infinite alternate';
+            
+            // Đánh dấu tất cả giai đoạn hoàn thành
+            const markers = document.querySelectorAll('.stage-marker');
+            const timeItems = document.querySelectorAll('.stage-time-item');
+            
+            markers.forEach(marker => {
+                marker.classList.add('completed');
+                marker.classList.remove('current');
+            });
+            
+            timeItems.forEach(item => {
+                item.classList.add('completed');
+                item.classList.remove('current');
+            });
+            
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            
+            setTimeout(() => {
+                alert('HẾT THỜI GIAN THI!');
+            }, 1000);
+        }
+
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+            
+            const dateString = now.toLocaleDateString('vi-VN', options);
+            currentDate.textContent = dateString;
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === ' ') {
+                e.preventDefault();
+                togglePause();
+            } else if (e.key === 'r' || e.key === 'R') {
+                resetDemo();
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+            }
+        });
+    </script>
+</body>
+</html> 
